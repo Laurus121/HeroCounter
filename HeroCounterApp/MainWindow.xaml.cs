@@ -14,7 +14,7 @@ namespace HeroCounterApp
     public partial class MainWindow : Window
     {
         private List<Champion> champions = new List<Champion>();
-        public ObservableCollection<Champion> SelectedCounters { get; set; }
+        public ObservableCollection<Champion> SelectedCounters { get; set; } = new ObservableCollection<Champion>();
 
         public ObservableCollection<Champion> SelectedWeaknesses { get; set; } = new ObservableCollection<Champion>();
 
@@ -23,8 +23,7 @@ namespace HeroCounterApp
         {
             InitializeComponent();
             LoadChampions();
-            SelectedCounters = new ObservableCollection<Champion>();
-            DataContext = this;
+            this.DataContext = this;
         }
         private void LoadChampions()
         {
@@ -183,7 +182,7 @@ namespace HeroCounterApp
             return counters;
         }
 
-        
+
 
 
         private void EditBrowseImageButton_Click(object sender, RoutedEventArgs e)
@@ -200,23 +199,43 @@ namespace HeroCounterApp
 
         private void SaveChangesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (HeroSelectionComboBox.SelectedValue == null) return;
+            if (HeroSelectionComboBox.SelectedValue == null)
+            {
+                MessageBox.Show("Please select a hero to update.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             int heroId = (int)HeroSelectionComboBox.SelectedValue;
-            string name = EditHeroNameTextBox.Text;
-            string lanes = EditHeroLanesTextBox.Text;
-            string counters = EditHeroCountersComboBox.Text;
-            string weaknesses = EditHeroWeaknessesComboBox.Text;
-            string imagePath = EditHeroImagePathTextBox.Text;
+            string name = EditHeroNameTextBox.Text.Trim();
+            string lanes = EditHeroLanesTextBox.Text.Trim();
+
+            // Extract counters
+            var counterIds = EditHeroCountersListBox.Items
+                .Cast<Champion>()
+                .Select(champion => champion.ChampionID.ToString())
+                .ToList();
+            string counters = string.Join(",", counterIds);
+
+            // Extract weaknesses
+            var weaknessIds = EditHeroWeaknessesListBox.Items
+                .Cast<Champion>()
+                .Select(champion => champion.ChampionID.ToString())
+                .ToList();
+            string weaknesses = string.Join(",", weaknessIds);
+
+            string imagePath = EditHeroImagePathTextBox.Text.Trim();
 
             try
             {
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
+
                     var command = new SQLiteCommand(
                         "UPDATE Champion SET Name = @Name, Lanes = @Lanes, Counters = @Counters, Weaknesses = @Weaknesses, ImagePath = @ImagePath WHERE ChampionID = @ChampionID",
                         connection);
+
+                    // Add parameters
                     command.Parameters.AddWithValue("@Name", name);
                     command.Parameters.AddWithValue("@Lanes", lanes);
                     command.Parameters.AddWithValue("@Counters", counters);
@@ -228,7 +247,7 @@ namespace HeroCounterApp
                 }
 
                 MessageBox.Show("Hero updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadChampions();
+                LoadChampions(); // Reload the updated data
             }
             catch (Exception ex)
             {
@@ -236,7 +255,8 @@ namespace HeroCounterApp
             }
         }
 
-         private void EditHeroCountersComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private void EditHeroCountersComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (EditHeroCountersComboBox.SelectedItem is Champion selectedChampion)
             {
@@ -244,16 +264,24 @@ namespace HeroCounterApp
                 {
                     SelectedCounters.Add(selectedChampion);
                 }
+                EditHeroCountersListBox.ItemsSource = null;
+                EditHeroCountersListBox.ItemsSource = SelectedCounters; 
             }
         }
 
+
         private void EditHeroWeaknessesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0 && e.AddedItems[0] is Champion selectedChampion)
+            if (EditHeroWeaknessesComboBox.SelectedItem is Champion selectedChampion)
             {
                 if (!SelectedWeaknesses.Contains(selectedChampion))
+                {
                     SelectedWeaknesses.Add(selectedChampion);
+                }
+                EditHeroWeaknessesListBox.ItemsSource = null;
+                EditHeroWeaknessesListBox.ItemsSource = SelectedWeaknesses;
             }
+
         }
         private void RemoveCounterButton_Click(object sender, RoutedEventArgs e)
         {
@@ -271,6 +299,32 @@ namespace HeroCounterApp
             if (EditHeroCountersListBox.SelectedItem is Champion selectedChampion)
             {
                 SelectedCounters.Remove(selectedChampion);
+                EditHeroCountersListBox.ItemsSource = null;
+                EditHeroCountersListBox.ItemsSource = SelectedWeaknesses;
+            }
+            else
+            {
+                MessageBox.Show("No champion selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void RemoveWeaknessesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (EditHeroWeaknessesComboBox.SelectedItem is Champion selectedChampion)
+            {
+                SelectedWeaknesses.Remove(selectedChampion);
+            }
+            else
+            {
+                MessageBox.Show("No champion selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void RemoveWeaknessesContextMenu_Click(object sender, RoutedEventArgs e)
+        {
+            if (EditHeroWeaknessesListBox.SelectedItem is Champion selectedChampion)
+            {
+                SelectedWeaknesses.Remove(selectedChampion);
+                EditHeroWeaknessesListBox.ItemsSource = null;
+                EditHeroWeaknessesListBox.ItemsSource = SelectedWeaknesses;
             }
             else
             {
@@ -289,17 +343,33 @@ namespace HeroCounterApp
                     using (var connection = DatabaseHelper.GetConnection())
                     {
                         connection.Open();
-                        var command = new SQLiteCommand("SELECT Name, Lanes, Counters, Weaknesses, ImagePath FROM Champion WHERE ChampionID = @ChampionID", connection);
+                        var command = new SQLiteCommand(
+                            "SELECT Name, Lanes, Counters, Weaknesses, ImagePath FROM Champion WHERE ChampionID = @ChampionID",
+                            connection);
                         command.Parameters.AddWithValue("@ChampionID", heroId);
 
-                        var reader = command.ExecuteReader();
-                        if (reader.Read())
+                        using (var reader = command.ExecuteReader())
                         {
-                            EditHeroNameTextBox.Text = reader.GetString(0);
-                            EditHeroLanesTextBox.Text = reader.GetString(1);
-                            EditHeroCountersComboBox.Text = reader.GetString(2);
-                            EditHeroWeaknessesComboBox.Text = reader.GetString(3);
-                            EditHeroImagePathTextBox.Text = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
+                            if (reader.Read())
+                            {
+                                // Populate fields with data
+                                EditHeroNameTextBox.Text = SafeGetString(reader, "Name");
+                                EditHeroLanesTextBox.Text = SafeGetString(reader, "Lanes");
+
+                                // Process counters
+                                string counters = SafeGetString(reader, "Counters");
+                                EditHeroCountersListBox.ItemsSource = GetChampionsByIds(counters);
+                                SelectedCounters = new ObservableCollection<Champion>(GetChampionsByIds(counters));
+
+                                // Process weaknesses
+                                string weaknesses = SafeGetString(reader, "Weaknesses");
+                                EditHeroWeaknessesListBox.ItemsSource = GetChampionsByIds(weaknesses);
+                                SelectedWeaknesses = new ObservableCollection<Champion>(GetChampionsByIds(weaknesses));
+
+
+                                // Hero image path
+                                EditHeroImagePathTextBox.Text = SafeGetString(reader, "ImagePath");
+                            }
                         }
                     }
                 }
@@ -313,26 +383,84 @@ namespace HeroCounterApp
                 MessageBox.Show("Selected value is not a valid Hero ID.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // Helper method to safely retrieve values from the reader
+        private string SafeGetString(SQLiteDataReader reader, string columnName)
+        {
+            int ordinal = reader.GetOrdinal(columnName);
+            return reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal);
+        }
+
+        private List<Champion> GetChampionsByIds(string idString)
+        {
+            List<Champion> champions = new List<Champion>();
+
+            if (string.IsNullOrWhiteSpace(idString))
+                return champions;
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+
+                    // Split IDs and use parameters for query
+                    string[] ids = idString.Split(',');
+                    var command = new SQLiteCommand(
+                        $"SELECT ChampionID, Name, Lanes, Counters, Weaknesses, ImagePath FROM Champion WHERE ChampionID IN ({string.Join(", ", ids.Select((_, i) => $"@id{i}"))})",
+                        connection);
+
+                    for (int i = 0; i < ids.Length; i++)
+                    {
+                        command.Parameters.AddWithValue($"@id{i}", ids[i]);
+                    }
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            champions.Add(new Champion
+                            {
+                                ChampionID = reader.GetInt32(reader.GetOrdinal("ChampionID")),
+                                Name = SafeGetString(reader, "Name"),
+                                Lanes = SafeGetString(reader, "Lanes"),
+                                Counters = SafeGetString(reader, "Counters"),
+                                Weaknesses = SafeGetString(reader, "Weaknesses"),
+                                ImagePath = SafeGetString(reader, "ImagePath")
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error fetching champions by IDs: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            return champions;
+        }
+
         private void HeroSelectionSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var textBox = (TextBox)e.OriginalSource; // Obține TextBox-ul din ComboBox
+            var textBox = (TextBox)e.OriginalSource;
             string filterText = textBox.Text;
 
             if (string.IsNullOrEmpty(filterText))
             {
-                
+
                 HeroSelectionComboBox.ItemsSource = champions;
             }
             else
             {
                 var filteredChampions = champions.Where(heroe =>
-                    heroe.Name.StartsWith(filterText)                                  
+                    heroe.Name.StartsWith(filterText)
                 ).ToList();
 
                 HeroSelectionComboBox.ItemsSource = filteredChampions;
-                HeroSelectionComboBox.IsDropDownOpen = true; 
+                HeroSelectionComboBox.IsDropDownOpen = true;
             }
         }
 
+        
     }
 }

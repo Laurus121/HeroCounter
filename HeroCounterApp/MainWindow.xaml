@@ -117,87 +117,115 @@
 
         <!-- Modify Hero Tab -->
         <TabItem Header="Modify Hero">
-            <Grid Margin="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                <!-- Hero Selection -->
-                <StackPanel Orientation="Horizontal" Margin="10">
-                    <Label Content="Select Hero:" />
-                    <TextBox Name="HeroSelectionSearch" Width="200" 
-                             TextChanged="HeroSelectionSearchTextBox_TextChanged"/>
-                    <ComboBox Name="HeroSelectionComboBox" Width="200" 
-                              ItemTemplate="{StaticResource ChampionTemplate}"
-                              SelectedValuePath="ChampionID"
-                              SelectionChanged="HeroSelectionComboBox_SelectionChanged"/>
-                    
-                </StackPanel>
-
-                <!-- Edit Form -->
-                <StackPanel Grid.Row="1">
-                    <Label Content="Hero Name:" />
-                    <TextBox Name="EditHeroNameTextBox" Width="200" />
-
-                    <Label Content="Lanes (comma-separated):" />
-                    <TextBox Name="EditHeroLanesTextBox" Width="200" />
-
-                    <!-- Stronger Against -->
-                    <Label Content="Stronger Against (select champions):" />
-                    <ComboBox Name="EditHeroCountersComboBox" Width="200" 
-                                ItemTemplate="{StaticResource ChampionTemplate}" 
-                                SelectedValuePath="ChampionID"
-                                SelectionChanged="EditHeroCountersComboBox_SelectionChanged" />
-                    <Label Content="Selected Champions:" />
-                    <ListBox Name="EditHeroCountersListBox" Width="200" Height="100" 
-         ItemsSource="{Binding SelectedCounters}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                        <ListBox.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Remove" Click="RemoveCounterContextMenu_Click" />
-                            </ContextMenu>
-                        </ListBox.ContextMenu>
-                    </ListBox>
-                    <Button Content="Remove Selected" Margin="0,5" Width="120" 
-                    Click="RemoveCounterButton_Click" />
-                    
-                    <!-- Weaker Against -->
-                    <Label Content="Weaker Against (select champions):" />
-                    <ComboBox Name="EditHeroWeaknessesComboBox" Width="200" 
-          ItemTemplate="{StaticResource ChampionTemplate}" 
-                              SelectedValuePath="ChampionID"
-          SelectionChanged="EditHeroWeaknessesComboBox_SelectionChanged" />
-                    <Label Content="Selected Champions:" />
-                    <ListBox Name="EditHeroWeaknessesListBox" Width="200" Height="100" 
-                       ItemsSource="{Binding SelectedWeaknesses}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-
-                    <Label Content="Hero Image:" />
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox Name="EditHeroImagePathTextBox" Width="150" IsReadOnly="True" />
-                        <Button Content="Browse" Click="EditBrowseImageButton_Click" />
+                    <!-- Hero Selection -->
+                    <StackPanel Orientation="Horizontal" Margin="10" Grid.Row="0">
+                        <Label Content="Select Hero:" VerticalAlignment="Center" />
+                        <TextBox Name="HeroSelectionSearch" Width="200" 
+                         Margin="5,0" 
+                         TextChanged="HeroSelectionSearchTextBox_TextChanged" />
+                        <ComboBox Name="HeroSelectionComboBox" Width="200" 
+                          Margin="5,0" 
+                          ItemTemplate="{StaticResource ChampionTemplate}"
+                          SelectedValuePath="ChampionID"
+                          SelectionChanged="HeroSelectionComboBox_SelectionChanged" />
                     </StackPanel>
 
-                    <Button Content="Save Changes" Margin="0,10" Click="SaveChangesButton_Click" />
-                </StackPanel>
-            </Grid>
+                    <!-- Edit Form -->
+                    <Grid Grid.Row="1" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Hero Name -->
+                        <Label Content="Hero Name:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
+                        <TextBox Name="EditHeroNameTextBox" Grid.Row="0" Grid.Column="1" Width="200" Margin="5,0" />
+
+                        <!-- Lanes -->
+                        <Label Content="Lanes (comma-separated):" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
+                        <TextBox Name="EditHeroLanesTextBox" Grid.Row="1" Grid.Column="1" Width="200" Margin="5,0" />
+
+                        <!-- Counters -->
+                        <Label Content="Counters (select champions):" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
+                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,5">
+                            <ComboBox Name="EditHeroCountersComboBox" Width="200" 
+                              ItemTemplate="{StaticResource ChampionTemplate}" 
+                              SelectedValuePath="ChampionID"
+                              SelectionChanged="EditHeroCountersComboBox_SelectionChanged" />
+                            <ListBox Name="EditHeroCountersListBox" Width="200" Height="100" Margin="0,5" >
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Remove" Click="RemoveCounterContextMenu_Click" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
+                            <Button Content="Remove Selected" Margin="0,5" Width="120" 
+                            Click="RemoveCounterButton_Click" />
+                        </StackPanel>
+
+                        <!-- Weaknesses -->
+                        <Label Content="Weaker Against (select champions):" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
+                        <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,5">
+                            <ComboBox Name="EditHeroWeaknessesComboBox" Width="200" 
+                              ItemTemplate="{StaticResource ChampionTemplate}" 
+                              SelectedValuePath="ChampionID"
+                              SelectionChanged="EditHeroWeaknessesComboBox_SelectionChanged" />
+                            <ListBox Name="EditHeroWeaknessesListBox" Width="200" Height="100" Margin="0,5">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Remove" Click="RemoveWeaknessesContextMenu_Click" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
+                            <Button Content="Remove Selected" Margin="0,5" Width="120" 
+                            Click="RemoveWeaknessesButton_Click" />
+                        </StackPanel>
+
+                        <!-- Hero Image -->
+                        <Label Content="Hero Image:" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
+                        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" Margin="0,5">
+                            <TextBox Name="EditHeroImagePathTextBox" Width="150" IsReadOnly="True" Margin="5,0" />
+                            <Button Content="Browse" Click="EditBrowseImageButton_Click" />
+                        </StackPanel>
+
+                        <!-- Save Changes -->
+                        <Button Content="Save Changes" Grid.Row="5" Grid.Column="0" Margin="0,10" Width="120" 
+                        HorizontalAlignment="Left" Click="SaveChangesButton_Click" />
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
         </TabItem>
     </TabControl>
 </Window>
