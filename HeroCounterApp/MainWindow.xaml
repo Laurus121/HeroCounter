@@ -1,7 +1,7 @@
 ﻿<Window x:Class="HeroCounterApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Hero Counter App" Height="auto" Width="800">
+        Title="Hero Counter App" Height="auto" Width="1200">
 
     <Window.Resources>
         <!-- Reusable DataTemplate for ComboBox Items -->
@@ -36,49 +36,208 @@
                 </Grid.RowDefinitions>
 
                 <!-- Enemy Selection -->
-                <UniformGrid Columns="5" Margin="10" Grid.ColumnSpan="2">
+                <UniformGrid Columns="5" Rows="3" Margin="10" Grid.ColumnSpan="2">
                     <StackPanel>
                         <Label Content="Enemy 1:" HorizontalAlignment="Center" />
-                        <ComboBox Name="EnemyChampion1ComboBox" Width="120" Height="40" 
+                        <TextBox Name="Enemy1Search" Width="Auto"
+                                 Margin="5,0"
+                                 TextChanged="Enemy1SearchTextBox_TextChanged"
+         Text="Search.." 
+         Foreground="Gray" 
+         GotFocus="EnemySearch_GotFocus" 
+         LostFocus="EnemySearch_LostFocus" />
+                        <ComboBox Name="EnemyChampion1ComboBox" Width="120" Height="Auto"
                                   ItemTemplate="{StaticResource ChampionTemplate}" 
-                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" />
+                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" 
+                                  SelectedValuePath="ChampionID"/>
                     </StackPanel>
                     <StackPanel>
                         <Label Content="Enemy 2:" HorizontalAlignment="Center" />
-                        <ComboBox Name="EnemyChampion2ComboBox" Width="120" Height="40" 
+                        <TextBox Name="Enemy2Search" Width="Auto" 
+Margin="5,0" 
+TextChanged="Enemy2SearchTextBox_TextChanged"          Text="Search.." 
+         Foreground="Gray" 
+         GotFocus="EnemySearch_GotFocus" 
+         LostFocus="EnemySearch_LostFocus"/>
+                        <ComboBox Name="EnemyChampion2ComboBox" Width="120" Height="Auto" 
                                   ItemTemplate="{StaticResource ChampionTemplate}" 
-                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" />
+                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged"
+                                  SelectedValuePath="ChampionID"/>
                     </StackPanel>
                     <StackPanel>
                         <Label Content="Enemy 3:" HorizontalAlignment="Center" />
-                        <ComboBox Name="EnemyChampion3ComboBox" Width="120" Height="40" 
+                        <TextBox Name="Enemy3Search" Width="Auto" 
+Margin="5,0" 
+TextChanged="Enemy3SearchTextBox_TextChanged"         Text="Search.." 
+         Foreground="Gray" 
+         GotFocus="EnemySearch_GotFocus" 
+         LostFocus="EnemySearch_LostFocus" />
+                        <ComboBox Name="EnemyChampion3ComboBox" Width="120" Height="Auto" 
                                   ItemTemplate="{StaticResource ChampionTemplate}" 
-                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" />
+                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" 
+                                  SelectedValuePath="ChampionID"/>
                     </StackPanel>
                     <StackPanel>
                         <Label Content="Enemy 4:" HorizontalAlignment="Center" />
-                        <ComboBox Name="EnemyChampion4ComboBox" Width="120" Height="40" 
+                        <TextBox Name="Enemy4Search" Width="Auto" 
+Margin="5,0" 
+TextChanged="Enemy4SearchTextBox_TextChanged"          Text="Search.." 
+         Foreground="Gray" 
+         GotFocus="EnemySearch_GotFocus" 
+         LostFocus="EnemySearch_LostFocus"/>
+                        <ComboBox Name="EnemyChampion4ComboBox" Width="120" Height="Auto" 
                                   ItemTemplate="{StaticResource ChampionTemplate}" 
-                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" />
+                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" 
+                                  SelectedValuePath="ChampionID"/>
                     </StackPanel>
                     <StackPanel>
                         <Label Content="Enemy 5:" HorizontalAlignment="Center" />
-                        <ComboBox Name="EnemyChampion5ComboBox" Width="120" Height="40" 
+                        <TextBox Name="Enemy5Search" Width="Auto" 
+Margin="5,0" 
+TextChanged="Enemy5SearchTextBox_TextChanged"          Text="Search.." 
+         Foreground="Gray" 
+         GotFocus="EnemySearch_GotFocus" 
+         LostFocus="EnemySearch_LostFocus"/>
+                        <ComboBox Name="EnemyChampion5ComboBox" Width="120" Height="Auto" 
                                   ItemTemplate="{StaticResource ChampionTemplate}" 
-                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged" />
+                                  SelectionChanged="EnemyChampionComboBox_SelectionChanged"
+                                  SelectedValuePath="ChampionID"/>
+                        <Button Content="Reset" Grid.Row="5" Grid.Column="0" Margin="0,10" Width="120" 
+                        HorizontalAlignment="Center" Click="ResetButton_Click" />
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="EXP" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="ExpCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Gold" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="GoldCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Mid" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="MidCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Jungle" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="JungleCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Roam" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="RoamCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="EXP Counters" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="SPEExpCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Gold Counters" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="SPEGoldCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Mid Counters" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="SPEMidCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Jungle Counters" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="SPEJungleCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <Label Content="Roam Counters" HorizontalAlignment="Center" Grid.Row="1"/>
+                        <ListBox Name="SPERoamCounterslistbox" Width="Auto" Height="150">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </StackPanel>
                 </UniformGrid>
-
-                <!-- Counter Recommendations by Lane -->
-                <DataGrid Grid.Row="1" Name="CountersDataGrid" AutoGenerateColumns="False" Margin="10" Grid.ColumnSpan="2">
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Experience" CellTemplate="{StaticResource GridTemplate}" />
-                        <DataGridTemplateColumn Header="Gold" CellTemplate="{StaticResource GridTemplate}" />
-                        <DataGridTemplateColumn Header="Middle" CellTemplate="{StaticResource GridTemplate}" />
-                        <DataGridTemplateColumn Header="Jungle" CellTemplate="{StaticResource GridTemplate}" />
-                        <DataGridTemplateColumn Header="Roaming" CellTemplate="{StaticResource GridTemplate}" />
-                    </DataGrid.Columns>
-                </DataGrid>
+                
+                      
             </Grid>
         </TabItem>
 
@@ -127,7 +286,7 @@
                     <!-- Hero Selection -->
                     <StackPanel Orientation="Horizontal" Margin="10" Grid.Row="0">
                         <Label Content="Select Hero:" VerticalAlignment="Center" />
-                        <TextBox Name="HeroSelectionSearch" Width="200" 
+                        <TextBox Name="HeroSelectionSearchTextBox" Width="200" 
                          Margin="5,0" 
                          TextChanged="HeroSelectionSearchTextBox_TextChanged" />
                         <ComboBox Name="HeroSelectionComboBox" Width="200" 
@@ -164,6 +323,9 @@
                         <!-- Counters -->
                         <Label Content="Counters (select champions):" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
                         <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,5">
+                            <TextBox Name="CounterSelectionSearchTextBox" Width="200" 
+                            Margin="5,0" 
+                            TextChanged="CounterSelectionSearchTextBox_TextChanged" />
                             <ComboBox Name="EditHeroCountersComboBox" Width="200" 
                               ItemTemplate="{StaticResource ChampionTemplate}" 
                               SelectedValuePath="ChampionID"
@@ -190,6 +352,9 @@
                         <!-- Weaknesses -->
                         <Label Content="Weaker Against (select champions):" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
                         <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,5">
+                            <TextBox Name="WeaknessesSelectionSearchTextBox" Width="200" 
+                            Margin="5,0" 
+                            TextChanged="WeaknessesSelectionSearchTextBox_TextChanged" />
                             <ComboBox Name="EditHeroWeaknessesComboBox" Width="200" 
                               ItemTemplate="{StaticResource ChampionTemplate}" 
                               SelectedValuePath="ChampionID"
