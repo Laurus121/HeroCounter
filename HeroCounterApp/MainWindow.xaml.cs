@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
+using System.Data.SqlClient;
 
 namespace HeroCounterApp
 {
@@ -66,7 +67,8 @@ namespace HeroCounterApp
                     EnemyChampion3ComboBox.ItemsSource = champions;
                     EnemyChampion4ComboBox.ItemsSource = champions;
                     EnemyChampion5ComboBox.ItemsSource = champions;
-                    HeroSelectionComboBox.ItemsSource = champions; ;
+                    HeroSelectionComboBox.ItemsSource = champions;
+                    ChampionSelectionComboBox.ItemsSource = champions;
                     EditHeroCountersComboBox.ItemsSource = champions;
                     EditHeroWeaknessesComboBox.ItemsSource = champions;
 
@@ -273,7 +275,7 @@ namespace HeroCounterApp
             return results;
         }
 
-        private void AddToLaneLists(List<int> enemyHeroIds,IEnumerable<int> championIds, string lane, Dictionary<int, int> championCounts, SQLiteConnection connection, bool isSpecific)
+        private void AddToLaneLists(List<int> enemyHeroIds, IEnumerable<int> championIds, string lane, Dictionary<int, int> championCounts, SQLiteConnection connection, bool isSpecific)
         {
             var inClause = string.Join(",", championIds.Select((_, index) => $"@CounterId{index}"));
             var command = new SQLiteCommand($"SELECT * FROM Champion WHERE ChampionID IN ({inClause})", connection);
@@ -282,6 +284,8 @@ namespace HeroCounterApp
             {
                 command.Parameters.AddWithValue($"@CounterId{i}", championIds.ElementAt(i));
             }
+
+            var addedChampions = new HashSet<int>(); // Set pentru a urmări campionii adăugați
 
             using (var reader = command.ExecuteReader())
             {
@@ -297,7 +301,6 @@ namespace HeroCounterApp
                     };
                     if (enemyHeroIds.Contains(champion.ChampionID)) continue;
 
-                    // Check if this countchampion has a counter in enemyHeroIds
                     if (!string.IsNullOrEmpty(champion.Counters))
                     {
                         var countChampionCounters = champion.Counters.Split(',').Select(int.Parse);
@@ -308,19 +311,33 @@ namespace HeroCounterApp
                     }
                     if (!championCounts.TryGetValue(champion.ChampionID, out var occurrences)) continue;
 
-                    var lanesToMatch = isSpecific && lane != null
-                        ? Regex.Matches(champion.Lanes, $@"\b{lane}\b")
-                        : Regex.Matches(champion.Lanes, @"\b(EXP|Gold|Mid|Roam|Jungle)\b");
-
-                    foreach (Match match in lanesToMatch)
+                    if (isSpecific && lane != null)
                     {
-                        if (isSpecific)
+                        var specificLanes = lane.Split(',').Select(l => l.Trim()).ToList();
+
+                        foreach (var specificLane in specificLanes)
                         {
-                            SPEAddChampionToLaneList(champion, match.Value, occurrences);
+                            if (Regex.IsMatch(champion.Lanes, $@"\b{Regex.Escape(specificLane)}\b"))
+                            {
+                                if (!addedChampions.Contains(champion.ChampionID))
+                                {
+                                    SPEAddChampionToLaneList(champion, specificLane, occurrences);
+                                    addedChampions.Add(champion.ChampionID); 
+                                }
+                            }
                         }
-                        else
+                    }
+                    else
+                    {
+                        // Dacă nu este specificat un lane, folosește expresia regulată pentru lane-urile standard
+                        var lanesToMatch = Regex.Matches(champion.Lanes, @"\b(EXP|Gold|Mid|Roam|Jungle)\b");
+                        foreach (Match match in lanesToMatch)
                         {
-                            AddChampionToLaneList(champion, match.Value, occurrences);
+                            if (!addedChampions.Contains(champion.ChampionID)) // Verifică dacă a fost adăugat deja
+                            {
+                                AddChampionToLaneList(champion, match.Value, occurrences);
+                                addedChampions.Add(champion.ChampionID); // Adaugă campionul în set
+                            }
                         }
                     }
                 }
@@ -333,6 +350,12 @@ namespace HeroCounterApp
             UpdateObservableCollection(MidCounters, MidCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
             UpdateObservableCollection(RoamCounters, RoamCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
             UpdateObservableCollection(JungleCounters, JungleCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
+
+            UpdateObservableCollection(SPEEXPCounters, SPEEXPCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
+            UpdateObservableCollection(SPEGoldCounters, SPEGoldCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
+            UpdateObservableCollection(SPEMidCounters, SPEMidCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
+            UpdateObservableCollection(SPERoamCounters, SPERoamCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
+            UpdateObservableCollection(SPEJungleCounters, SPEJungleCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
         }
         private void UpdateObservableCollection(ObservableCollection<Champion> collection, List<Champion> sortedList)
         {
@@ -813,7 +836,291 @@ namespace HeroCounterApp
             EnemyChampion3ComboBox.ItemsSource = null;
             EnemyChampion4ComboBox.ItemsSource = null;
             EnemyChampion5ComboBox.ItemsSource = null;
+            Enemy1Search.Text = null;
+            Enemy2Search.Text = null;
+            Enemy3Search.Text = null;
+            Enemy4Search.Text = null;
+            Enemy5Search.Text = null;
             LoadChampions();
-        }   
+        }
+        private void ChampionCountersTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(ChampionCountersTextBox.Text))
+            {
+                CountersPlaceholder.Opacity = 1;
+            }
+            }
+
+        private void ChampionCountersTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            CountersPlaceholder.Opacity = 0;
+        }
+
+        private void ChampionWeaknessTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(ChampionWeaknessTextBox.Text))
+            {
+                WeaknessPlaceholder.Opacity = 1;
+            }
+        }
+        private void ChampionWeaknessTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+
+            WeaknessPlaceholder.Opacity = 0;
+        }
+
+        private void ChampionCounterSelectionSearchTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox.Text == "Search..")
+            {
+                textBox.Text = string.Empty;
+                textBox.Foreground = Brushes.Black;
+            }
+            else
+            {
+                textBox.SelectAll();
+            }
+        }
+        private void ChampionCounterSelectionSearchTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (string.IsNullOrEmpty(textBox.Text))
+            {
+                textBox.Text = "Search..";
+                textBox.Foreground = Brushes.Gray;
+            }
+        }
+        private void ChampionCounterSelectionSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            FilterChampions(ChampionCounterSelectionSearchTextBox, ChampionSelectionComboBox);
+        }
+        private void DeleteCountersButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedChampionId = (int)ChampionSelectionComboBox.SelectedValue;
+
+            // Șterge contraconturile din câmpul Counters al campionului selectat
+            ClearCountersFromChampion(selectedChampionId);
+
+            // Obține lista de ID-uri din ChampionWeaknessTextBox
+            var weaknessesInput = ChampionWeaknessTextBox.Text;
+            var weaknessIds = new List<int>();
+
+            foreach (var weaknessName in weaknessesInput.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var championId = GetChampionIdByName(weaknessName.Trim());
+                if (championId.HasValue)
+                {
+                    weaknessIds.Add(championId.Value);
+                }
+            }
+
+            // Elimină ID-ul campionului selectat din contraconturile fiecărui campion din lista de slăbiciuni
+            foreach (var weaknessId in weaknessIds)
+            {
+                RemoveCounterFromChampion(weaknessId, selectedChampionId);
+            }
+
+            MessageBox.Show("Counters deleted successfully!");
+        }
+
+        private void ClearCountersFromChampion(int championId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+                var command = new SQLiteCommand("UPDATE Champion SET Counters = '' WHERE ChampionID = @ChampionID", connection);
+                command.Parameters.AddWithValue("@ChampionID", championId);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private void RemoveCounterFromChampion(int championId, int counterId)
+        {
+            var existingCounters = GetExistingCounters(championId);
+            var updatedCounters = existingCounters.Where(id => id != counterId).ToHashSet();
+            SaveCountersToChampion(championId, updatedCounters);
+        }
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedChampionId = (int)ChampionSelectionComboBox.SelectedValue;
+
+            var countersInput = ChampionCountersTextBox.Text;
+            var countersIds = new List<int>();
+
+            bool championNotFound = false;
+            string notFoundChampions = "";
+
+            foreach (var counterName in countersInput.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var championId = GetChampionIdByName(counterName.Trim());
+                if (championId.HasValue)
+                {
+                    countersIds.Add(championId.Value);
+                }
+                else
+                {
+                    championNotFound = true;
+                    notFoundChampions += counterName.Trim() + ", ";
+                }
+            }
+            if (championNotFound)
+
+            {
+                ErrorMessageTextBlock.Text = "Champions not found: " + notFoundChampions.TrimEnd(',', ' ');
+                ErrorMessageTextBlock.Visibility = Visibility.Visible;
+                return; 
+            }
+            else
+                ErrorMessageTextBlock.Visibility = Visibility.Hidden;
+            var existingCounters = GetExistingCounters(selectedChampionId);
+            var allCounters = new HashSet<int>(existingCounters); 
+
+            foreach (var counterId in countersIds)
+            {
+                allCounters.Add(counterId);
+            }
+
+            SaveCountersToChampion(selectedChampionId, allCounters);
+
+            var weaknessesInput = ChampionWeaknessTextBox.Text;
+            var weaknessIds = new List<int>();
+
+            foreach (var weaknessName in weaknessesInput.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var championId = GetChampionIdByName(weaknessName.Trim());
+                if (championId.HasValue)
+                {
+                    weaknessIds.Add(championId.Value);
+                }
+                else
+                {
+                    championNotFound = true;
+                    notFoundChampions += weaknessName.Trim() + ", ";
+                }
+            }
+            if (championNotFound)
+
+            {
+                ErrorMessageTextBlock.Text = "Champions not found: " + notFoundChampions.TrimEnd(',', ' ');
+                ErrorMessageTextBlock.Visibility = Visibility.Visible;
+                return;
+            }
+            else
+                ErrorMessageTextBlock.Visibility = Visibility.Hidden;
+            foreach (var weaknessId in weaknessIds)
+            {
+                var weaknessCounters = GetExistingCounters(weaknessId);
+                var weaknessCounterSet = new HashSet<int>(weaknessCounters);
+                weaknessCounterSet.Add(selectedChampionId); 
+
+                SaveCountersToChampion(weaknessId, weaknessCounterSet);
+            }
+
+            MessageBox.Show("Data saved successfully!");
+        }
+
+        private int? GetChampionIdByName(string name)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+                var command = new SQLiteCommand("SELECT ChampionID FROM Champion WHERE Name = @Name", connection);
+                command.Parameters.AddWithValue("@Name", name);
+                var result = command.ExecuteScalar();
+                return result != null ? (int?)Convert.ToInt32(result) : null;
+            }
+        }
+
+        private List<int> GetExistingCounters(int championId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+                var command = new SQLiteCommand("SELECT Counters FROM Champion WHERE ChampionID = @ChampionID", connection);
+                command.Parameters.AddWithValue("@ChampionID", championId);
+                var result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    var countersString = result.ToString();
+                    return countersString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                         .Select(id => int.Parse(id.Trim()))
+                                         .ToList();
+                }
+                return new List<int>();
+            }
+        }
+
+        private void SaveCountersToChampion(int championId, HashSet<int> counters)
+        {
+            var countersString = string.Join(",", counters);
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+                var command = new SQLiteCommand("UPDATE Champion SET Counters = @Counters WHERE ChampionID = @ChampionID", connection);
+                command.Parameters.AddWithValue("@Counters", countersString);
+                command.Parameters.AddWithValue("@ChampionID", championId);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private void OverwriteCountersButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool championNotFound = false;
+            string notFoundChampions = "";
+
+            var selectedChampionId = (int)ChampionSelectionComboBox.SelectedValue;
+
+            var countersInput = ChampionCountersTextBox.Text;
+            var countersIds = new List<int>();
+
+            foreach (var counterName in countersInput.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var championId = GetChampionIdByName(counterName.Trim());
+                if (championId.HasValue)
+                {
+                    countersIds.Add(championId.Value);
+                }
+                else
+                {
+                    championNotFound = true;
+                    notFoundChampions += counterName.Trim() + ", ";
+                }
+
+            }
+            if (championNotFound)
+
+            {
+                ErrorMessageTextBlock.Text = "Champions not found: " + notFoundChampions.TrimEnd(',', ' ');
+                ErrorMessageTextBlock.Visibility = Visibility.Visible;
+                return;
+            }
+            SaveCountersToChampion(selectedChampionId, new HashSet<int>(countersIds));
+
+            MessageBox.Show("Counters overwritten successfully!");
+        }
+
+        private void ChampionSelectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ChampionCountersTextBox.Text= string.Empty;
+            ChampionWeaknessTextBox.Text= string.Empty;
+            ErrorMessageTextBlock.Visibility = Visibility.Hidden;
+        }
+        private void ChampionWeaknessTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            SaveButton_Click(sender, e);
+        }
     }
+
+    private void ChampionSelectionComboBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            SaveButton_Click(sender, e);
+        }
+    }
+    }
+    
 }

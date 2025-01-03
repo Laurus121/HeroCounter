@@ -392,5 +392,60 @@ TextChanged="Enemy5SearchTextBox_TextChanged"          Text="Search.."
                 </Grid>
             </ScrollViewer>
         </TabItem>
+        <TabItem Header="Add Counters">
+            <Grid Margin="10">
+                <StackPanel>
+                    <Label>Select Champion:</Label>
+                    <Grid>
+                        <TextBox Name="ChampionCounterSelectionSearchTextBox" Width="200" 
+                         Margin="5,0" 
+                         Text="Search.." 
+                         Foreground="Gray" 
+                         TextChanged="ChampionCounterSelectionSearchTextBox_TextChanged" 
+                         GotFocus="ChampionCounterSelectionSearchTextBox_GotFocus"
+                         LostFocus="ChampionCounterSelectionSearchTextBox_LostFocus"/>
+                    </Grid>
+                    <ComboBox Name="ChampionSelectionComboBox" Width="200" 
+                      ItemTemplate="{StaticResource ChampionTemplate}" 
+                      SelectedValuePath="ChampionID"
+                      SelectionChanged="ChampionSelectionComboBox_SelectionChanged" />
+
+                    <Label>Enter Counters separated by a ,:</Label>
+                    <TextBox Name="ChampionCountersTextBox" Width="200" 
+                     Margin="5,0" 
+                     GotFocus="ChampionCountersTextBox_GotFocus"
+                     LostFocus="ChampionCountersTextBox_LostFocus"
+                     KeyDown="ChampionSelectionComboBox_KeyDown"/>
+                    <TextBlock Name="CountersPlaceholder" 
+                       Text="e.g. Champion1, Champion2" 
+                       Foreground="Gray" 
+                       VerticalAlignment="Center" 
+                       Margin="10,0,0,0" 
+                       IsHitTestVisible="False" 
+                       Opacity="0"/>
+
+                    <Label>Enter weakness against the champion separated by a ,:</Label>
+                    <TextBox Name="ChampionWeaknessTextBox" Width="200" 
+                     Margin="5,0" 
+                     GotFocus="ChampionWeaknessTextBox_GotFocus"
+                     LostFocus="ChampionWeaknessTextBox_LostFocus"
+                             KeyDown="ChampionWeaknessTextBox_KeyDown"/>
+                    <TextBlock Name="WeaknessPlaceholder" 
+                       Text="e.g. Weakness1, Weakness2" 
+                       Foreground="Gray" 
+                       VerticalAlignment="Center" 
+                       Margin="10,0,0,0" 
+                       IsHitTestVisible="False" 
+                       Opacity="0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Save the Data" Width="200" Margin="5,10" Click="SaveButton_Click"/>
+                        <Button Content="Delete Counters" Width="200" Margin="5,10" Click="DeleteCountersButton_Click"/>
+                        <Button Content="Overwrite Counters" Width="200" Margin="5,10" Click="OverwriteCountersButton_Click"/>
+                        
+                    </StackPanel>
+                    <TextBlock x:Name="ErrorMessageTextBlock" Foreground="Red" Margin="5,10" Visibility="Collapsed"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
     </TabControl>
 </Window>
