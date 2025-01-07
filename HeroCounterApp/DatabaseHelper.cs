@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.IO;
 
 namespace HeroCounterApp
 {
     public static class DatabaseHelper
     {
-        private const string ConnectionString = "Data Source=C:\\Users\\barbu\\source\\repos\\HeroCounterApp\\HeroCounterApp\\Data\\heroes.db;Version=3;";
+        static string dbFileName = "heroes.db";
+        static string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", dbFileName);
+        static string ConnectionString = $"Data Source={dbPath};Version=3;";
 
         public static SQLiteConnection GetConnection()
         {

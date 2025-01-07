@@ -380,9 +380,12 @@ TextChanged="Enemy5SearchTextBox_TextChanged"          Text="Search.."
 
                         <!-- Hero Image -->
                         <Label Content="Hero Image:" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="0,5" />
-                        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" Margin="0,5">
-                            <TextBox Name="EditHeroImagePathTextBox" Width="150" IsReadOnly="True" Margin="5,0" />
-                            <Button Content="Browse" Click="EditBrowseImageButton_Click" />
+                        <StackPanel Grid.Row="4" Grid.Column="1" Margin="0,5">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Name="EditHeroImagePathTextBox" Width="150" IsReadOnly="True" Margin="0,0,5,0" />
+                                <Button Content="Browse" Click="EditBrowseImageButton_Click" />
+                            </StackPanel>
+                            <TextBlock Name="ImageStatusTextBlock" Margin="5,5,0,0" Foreground="Black" />
                         </StackPanel>
 
                         <!-- Save Changes -->

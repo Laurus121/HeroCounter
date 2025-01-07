@@ -12,6 +12,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace HeroCounterApp
 {
@@ -43,6 +44,7 @@ namespace HeroCounterApp
         }
         private void LoadChampions()
         {
+            string imageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\Image"); // Adjust the directory as needed
             try
             {
                 using (var connection = DatabaseHelper.GetConnection())
@@ -52,16 +54,44 @@ namespace HeroCounterApp
                     var command = new SQLiteCommand("SELECT ChampionID, Name, ImagePath FROM Champion", connection);
                     var reader = command.ExecuteReader();
                     champions.Clear();
+
+                    var updateCommand = new SQLiteCommand("UPDATE Champion SET ImagePath = @ImagePath WHERE ChampionID = @ChampionID", connection);
+
                     while (reader.Read())
                     {
+                        int championId = reader.GetInt32(reader.GetOrdinal("ChampionID"));
+                        string name = reader.GetString(reader.GetOrdinal("Name"));
+                        string imagePath = reader.IsDBNull(reader.GetOrdinal("ImagePath")) ? "" : reader.GetString(reader.GetOrdinal("ImagePath"));
+
+                        // Construct expected image path
+                        string expectedImagePath = Path.Combine(imageDirectory, $"{name}.png");
+
+                        // Check if the image file exists
+                        if (File.Exists(expectedImagePath))
+                        {
+                            // If ImagePath in DB is different, update it
+                            if (imagePath != expectedImagePath)
+                            {
+                                updateCommand.Parameters.Clear();
+                                updateCommand.Parameters.AddWithValue("@ImagePath", expectedImagePath);
+                                updateCommand.Parameters.AddWithValue("@ChampionID", championId);
+                                updateCommand.ExecuteNonQuery();
+                                imagePath = expectedImagePath; // Update the local variable
+                            }
+                        }
+
                         champions.Add(new Champion
                         {
-                            ChampionID = reader.GetInt32(reader.GetOrdinal("ChampionID")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            ImagePath = reader.IsDBNull(reader.GetOrdinal("ImagePath")) ? "" : reader.GetString(reader.GetOrdinal("ImagePath"))
+                            ChampionID = championId,
+                            Name = name,
+                            ImagePath = imagePath
                         });
                     }
+
+                    // Add a default option for selection
                     champions.Insert(0, new Champion { ChampionID = -1, Name = "Select a Champion" });
+
+                    // Set data sources for comboboxes
                     EnemyChampion1ComboBox.ItemsSource = champions;
                     EnemyChampion2ComboBox.ItemsSource = champions;
                     EnemyChampion3ComboBox.ItemsSource = champions;
@@ -71,7 +101,6 @@ namespace HeroCounterApp
                     ChampionSelectionComboBox.ItemsSource = champions;
                     EditHeroCountersComboBox.ItemsSource = champions;
                     EditHeroWeaknessesComboBox.ItemsSource = champions;
-
                 }
             }
             catch (Exception ex)
@@ -79,6 +108,7 @@ namespace HeroCounterApp
                 MessageBox.Show($"Error loading champions: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private void EnemyChampionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -626,7 +656,20 @@ namespace HeroCounterApp
                                 EditHeroWeaknessesListBox.ItemsSource = GetChampionsByIds(weaknesses);
                                 SelectedWeaknesses = new ObservableCollection<Champion>(GetChampionsByIds(weaknesses));
 
-                                EditHeroImagePathTextBox.Text = SafeGetString(reader, "ImagePath");
+                                string imagePath = SafeGetString(reader, "ImagePath");
+                                EditHeroImagePathTextBox.Text = imagePath;
+
+                                // Check if the image exists and update the status message
+                                if (File.Exists(imagePath))
+                                {
+                                    ImageStatusTextBlock.Text = "Icon found.";
+                                    ImageStatusTextBlock.Foreground = new SolidColorBrush(Colors.Green);
+                                }
+                                else
+                                {
+                                    ImageStatusTextBlock.Text = "Icon not found.";
+                                    ImageStatusTextBlock.Foreground = new SolidColorBrush(Colors.Red);
+                                }
                             }
                         }
                     }
@@ -641,6 +684,7 @@ namespace HeroCounterApp
                 MessageBox.Show("Selected value is not a valid Hero ID.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private string SafeGetString(SQLiteDataReader reader, string columnName)
         {
