@@ -17,6 +17,22 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>C:\Users\barbu\Downloads\HeroCounterAPP\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>3</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,6 +52,18 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>117C3D6DE448B5BB12B5A5C322AFD9C89AE7BC7D</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>HeroCounterApp_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -107,6 +135,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Data\heroes.db" />
+    <None Include="Data\Image\node-v22.12.0-x64.msi" />
+    <None Include="HeroCounterApp_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -115,6 +146,153 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="x64\SQLite.Interop.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="x86\SQLite.Interop.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Data\Image\Aamon.png" />
+    <Resource Include="Data\Image\Akai.png" />
+    <Resource Include="Data\Image\Aldous.png" />
+    <Resource Include="Data\Image\Alice.png" />
+    <Resource Include="Data\Image\Alpha.png" />
+    <Resource Include="Data\Image\Alucard.png" />
+    <Resource Include="Data\Image\Angela.png" />
+    <Resource Include="Data\Image\Argus.png" />
+    <Resource Include="Data\Image\Arlott.png" />
+    <Resource Include="Data\Image\Atlas.png" />
+    <Resource Include="Data\Image\Aulus.png" />
+    <Resource Include="Data\Image\Aurora.png" />
+    <Resource Include="Data\Image\Badang.png" />
+    <Resource Include="Data\Image\Balmond.png" />
+    <Resource Include="Data\Image\Bane.png" />
+    <Resource Include="Data\Image\Barats.png" />
+    <Resource Include="Data\Image\Baxia.png" />
+    <Resource Include="Data\Image\Beatrix.png" />
+    <Resource Include="Data\Image\Belerick.png" />
+    <Resource Include="Data\Image\Benedetta.png" />
+    <Resource Include="Data\Image\Brody.png" />
+    <Resource Include="Data\Image\Bruno.png" />
+    <Resource Include="Data\Image\Carmilla.png" />
+    <Resource Include="Data\Image\Cecilion.png" />
+    <Resource Include="Data\Image\Change.png" />
+    <Resource Include="Data\Image\Chip.png" />
+    <Resource Include="Data\Image\Chou.png" />
+    <Resource Include="Data\Image\Cici.png" />
+    <Resource Include="Data\Image\Claude.png" />
+    <Resource Include="Data\Image\Clint.png" />
+    <Resource Include="Data\Image\Cyclops.png" />
+    <Resource Include="Data\Image\Diggie.png" />
+    <Resource Include="Data\Image\Dyrroth.png" />
+    <Resource Include="Data\Image\Edith.png" />
+    <Resource Include="Data\Image\Esmeralda.png" />
+    <Resource Include="Data\Image\Estes.png" />
+    <Resource Include="Data\Image\Eudora.png" />
+    <Resource Include="Data\Image\Fanny.png" />
+    <Resource Include="Data\Image\Faramis.png" />
+    <Resource Include="Data\Image\Floryn.png" />
+    <Resource Include="Data\Image\Franco.png" />
+    <Resource Include="Data\Image\Fredrinn.png" />
+    <Resource Include="Data\Image\Freya.png" />
+    <Resource Include="Data\Image\Gatotkaca.png" />
+    <Resource Include="Data\Image\Gloo.png" />
+    <Resource Include="Data\Image\Gord.png" />
+    <Resource Include="Data\Image\Granger.png" />
+    <Resource Include="Data\Image\Grock.png" />
+    <Resource Include="Data\Image\Guinevere.png" />
+    <Resource Include="Data\Image\Gusion.png" />
+    <Resource Include="Data\Image\Hanabi.png" />
+    <Resource Include="Data\Image\Hanzo.png" />
+    <Resource Include="Data\Image\Harith.png" />
+    <Resource Include="Data\Image\Harley.png" />
+    <Resource Include="Data\Image\Hayabusa.png" />
+    <Resource Include="Data\Image\Helcurt.png" />
+    <Resource Include="Data\Image\Hilda.png" />
+    <Resource Include="Data\Image\Hylos.png" />
+    <Resource Include="Data\Image\Irithel.png" />
+    <Resource Include="Data\Image\Ixia.png" />
+    <Resource Include="Data\Image\Jawhead.png" />
+    <Resource Include="Data\Image\Johnson.png" />
+    <Resource Include="Data\Image\Joy.png" />
+    <Resource Include="Data\Image\Julian.png" />
+    <Resource Include="Data\Image\Kadita.png" />
+    <Resource Include="Data\Image\Kagura.png" />
+    <Resource Include="Data\Image\Kaja.png" />
+    <Resource Include="Data\Image\Karina.png" />
+    <Resource Include="Data\Image\Karrie.png" />
+    <Resource Include="Data\Image\Khaleed.png" />
+    <Resource Include="Data\Image\Khufra.png" />
+    <Resource Include="Data\Image\Kimmy.png" />
+    <Resource Include="Data\Image\Lancelot.png" />
+    <Resource Include="Data\Image\Lapu-Lapu.png" />
+    <Resource Include="Data\Image\Layla.png" />
+    <Resource Include="Data\Image\Leomord.png" />
+    <Resource Include="Data\Image\Lesley.png" />
+    <Resource Include="Data\Image\Ling.png" />
+    <Resource Include="Data\Image\Lolita.png" />
+    <Resource Include="Data\Image\Lukas.png" />
+    <Resource Include="Data\Image\Lunox.png" />
+    <Resource Include="Data\Image\Luo Yi.png" />
+    <Resource Include="Data\Image\Lylia.png" />
+    <Resource Include="Data\Image\Martis.png" />
+    <Resource Include="Data\Image\Masha.png" />
+    <Resource Include="Data\Image\Mathilda.png" />
+    <Resource Include="Data\Image\Melissa.png" />
+    <Resource Include="Data\Image\Minotaur.png" />
+    <Resource Include="Data\Image\Minsitthar.png" />
+    <Resource Include="Data\Image\Miya.png" />
+    <Resource Include="Data\Image\Moskov.png" />
+    <Resource Include="Data\Image\Nana.png" />
+    <Resource Include="Data\Image\Natalia.png" />
+    <Resource Include="Data\Image\Natan.png" />
+    <Resource Include="Data\Image\Nolan.png" />
+    <Resource Include="Data\Image\Novaria.png" />
+    <Resource Include="Data\Image\Odette.png" />
+    <Resource Include="Data\Image\Paquito.png" />
+    <Resource Include="Data\Image\Pharsa.png" />
+    <Resource Include="Data\Image\Phoveus.png" />
+    <Resource Include="Data\Image\Popol and Kupa.png" />
+    <Resource Include="Data\Image\Rafaela.png" />
+    <Resource Include="Data\Image\Roger.png" />
+    <Resource Include="Data\Image\Ruby.png" />
+    <Resource Include="Data\Image\Saber.png" />
+    <Resource Include="Data\Image\Selena.png" />
+    <Resource Include="Data\Image\Silvanna.png" />
+    <Resource Include="Data\Image\Sun.png" />
+    <Resource Include="Data\Image\Suyou.png" />
+    <Resource Include="Data\Image\Terizla.png" />
+    <Resource Include="Data\Image\Thamuz.png" />
+    <Resource Include="Data\Image\Tigreal.png" />
+    <Resource Include="Data\Image\Uranus.png" />
+    <Resource Include="Data\Image\Vale.png" />
+    <Resource Include="Data\Image\Valentina.png" />
+    <Resource Include="Data\Image\Valir.png" />
+    <Resource Include="Data\Image\Vexana.png" />
+    <Resource Include="Data\Image\Wanwan.png" />
+    <Resource Include="Data\Image\X.Borg.png" />
+    <Resource Include="Data\Image\Xavier.png" />
+    <Resource Include="Data\Image\Yi Sun-shin.png" />
+    <Resource Include="Data\Image\Yin.png" />
+    <Resource Include="Data\Image\Yu Zhong.png" />
+    <Resource Include="Data\Image\Yve.png" />
+    <Resource Include="Data\Image\Zhask.png" />
+    <Resource Include="Data\Image\Zhuxin.png" />
+    <Resource Include="Data\Image\Zilong.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

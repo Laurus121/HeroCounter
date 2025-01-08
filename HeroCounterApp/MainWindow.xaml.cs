@@ -44,13 +44,34 @@ namespace HeroCounterApp
         }
         private void LoadChampions()
         {
-            string imageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\Image"); // Adjust the directory as needed
+            string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\heroes.db");
+            string imageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\Image");
+
             try
             {
-                using (var connection = DatabaseHelper.GetConnection())
+                // Ensure the database directory exists
+                Directory.CreateDirectory(Path.GetDirectoryName(dbPath));
+
+                using (var connection = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
                 {
                     connection.Open();
 
+                    // Create the Champion table if it doesn't exist
+                    string createTableQuery = @"
+                CREATE TABLE IF NOT EXISTS Champion (
+                    ChampionID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    Lanes TEXT,
+                    Counters TEXT,
+                    Weaknesses TEXT,
+                    ImagePath TEXT
+                )";
+                    using (var createTableCommand = new SQLiteCommand(createTableQuery, connection))
+                    {
+                        createTableCommand.ExecuteNonQuery();
+                    }
+
+                    // Load champions from the database
                     var command = new SQLiteCommand("SELECT ChampionID, Name, ImagePath FROM Champion", connection);
                     var reader = command.ExecuteReader();
                     champions.Clear();
@@ -108,6 +129,7 @@ namespace HeroCounterApp
                 MessageBox.Show($"Error loading champions: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
 
         private void EnemyChampionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
