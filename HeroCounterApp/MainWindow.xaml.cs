@@ -7,11 +7,7 @@ using System.Windows.Input;
 using System.Data.SQLite;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.Remoting.Messaging;
-using System.Text.RegularExpressions;
 using System.Windows.Media;
-using System.Data.SqlClient;
 using System.IO;
 
 namespace HeroCounterApp
@@ -19,28 +15,53 @@ namespace HeroCounterApp
     public partial class MainWindow : Window
     {
         private List<Champion> champions = new List<Champion>();
+        public CounterRecommendationsTab counterRecommendationsTab;
         public ObservableCollection<Champion> SelectedCounters { get; set; } = new ObservableCollection<Champion>();
 
         public ObservableCollection<Champion> SelectedWeaknesses { get; set; } = new ObservableCollection<Champion>();
-
-        public ObservableCollection<Champion> EXPCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> MidCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> GoldCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> JungleCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> RoamCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> SPEEXPCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> SPEMidCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> SPEGoldCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> SPEJungleCounters { get; set; } = new ObservableCollection<Champion>();
-        public ObservableCollection<Champion> SPERoamCounters { get; set; } = new ObservableCollection<Champion>();
 
         public MainWindow()
         {
             InitializeComponent();
             LoadChampions();
+            CreateTabClasses();
+            InitializeTabs();
 
 
             this.DataContext = this;
+        }
+
+        private void CreateTabClasses()
+        {
+            ComboBox[] enemyComboBoxes = new ComboBox[] {
+                EnemyChampion1ComboBox,
+                EnemyChampion2ComboBox,
+                EnemyChampion3ComboBox,
+                EnemyChampion4ComboBox,
+                EnemyChampion5ComboBox
+            };
+            ListBox[] counterListBoxes = new ListBox[] {
+            EXPCounterslistbox,
+            GoldCounterslistbox,
+            JungleCounterslistbox,
+            MidCounterslistbox,
+            RoamCounterslistbox,
+            SPEEXPCounterslistbox,
+            SPEGoldCounterslistbox,
+            SPEJungleCounterslistbox,
+            SPEMidCounterslistbox,
+            SPERoamCounterslistbox,
+            NOREXPlistbox,
+            NORGoldlistbox,
+            NORJunglelistbox,
+            NORMidlistbox,
+            NORRoamlistbox
+        };
+            counterRecommendationsTab = new CounterRecommendationsTab(enemyComboBoxes, counterListBoxes);
+        }
+        private void InitializeTabs()
+        {
+            counterRecommendationsTab.Initialize();
         }
         private void LoadChampions()
         {
@@ -49,14 +70,18 @@ namespace HeroCounterApp
 
             try
             {
-                // Ensure the database directory exists
                 Directory.CreateDirectory(Path.GetDirectoryName(dbPath));
 
-                using (var connection = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+                bool isNewDatabase = !File.Exists(dbPath);
+                if (isNewDatabase)
+                {
+                    SQLiteConnection.CreateFile(dbPath);
+                }
+
+                using (var connection = new SQLiteConnection($"Data Source={dbPath};Version=3;ReadWrite=True;"))
                 {
                     connection.Open();
 
-                    // Create the Champion table if it doesn't exist
                     string createTableQuery = @"
                 CREATE TABLE IF NOT EXISTS Champion (
                     ChampionID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +96,6 @@ namespace HeroCounterApp
                         createTableCommand.ExecuteNonQuery();
                     }
 
-                    // Load champions from the database
                     var command = new SQLiteCommand("SELECT ChampionID, Name, ImagePath FROM Champion", connection);
                     var reader = command.ExecuteReader();
                     champions.Clear();
@@ -129,71 +153,6 @@ namespace HeroCounterApp
                 MessageBox.Show($"Error loading champions: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
-
-        private void EnemyChampionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-
-            ClearCounterLists();
-            UpdateCounterRecommendations();
-        }
-        private void ClearCounterLists()
-        {
-            EXPCounters.Clear();
-            GoldCounters.Clear();
-            MidCounters.Clear();
-            RoamCounters.Clear();
-            JungleCounters.Clear();
-            SPEEXPCounters.Clear();
-            SPEGoldCounters.Clear();
-            SPEMidCounters.Clear();
-            SPERoamCounters.Clear();
-            SPEJungleCounters.Clear();
-
-            ExpCounterslistbox.ItemsSource = null;
-            GoldCounterslistbox.ItemsSource = null;
-            JungleCounterslistbox.ItemsSource = null;
-            MidCounterslistbox.ItemsSource = null;
-            RoamCounterslistbox.ItemsSource = null;
-
-            ExpCounterslistbox.ItemsSource = EXPCounters;
-            GoldCounterslistbox.ItemsSource = GoldCounters;
-            JungleCounterslistbox.ItemsSource = JungleCounters;
-            MidCounterslistbox.ItemsSource = MidCounters;
-            RoamCounterslistbox.ItemsSource = RoamCounters;
-
-            SPEExpCounterslistbox.ItemsSource = null;
-            SPEGoldCounterslistbox.ItemsSource = null;
-            SPEJungleCounterslistbox.ItemsSource = null;
-            SPEMidCounterslistbox.ItemsSource = null;
-            SPERoamCounterslistbox.ItemsSource = null;
-
-            SPEExpCounterslistbox.ItemsSource = EXPCounters;
-            SPEGoldCounterslistbox.ItemsSource = GoldCounters;
-            SPEJungleCounterslistbox.ItemsSource = JungleCounters;
-            SPEMidCounterslistbox.ItemsSource = MidCounters;
-            SPERoamCounterslistbox.ItemsSource = RoamCounters;
-        }
-
-        private void UpdateCounterRecommendations()
-        {
-            var selectedEnemyHeroes = new List<int>();
-
-            if (EnemyChampion1ComboBox.SelectedValue != null)
-                selectedEnemyHeroes.Add((int)EnemyChampion1ComboBox.SelectedValue);
-            if (EnemyChampion2ComboBox.SelectedValue != null)
-                selectedEnemyHeroes.Add((int)EnemyChampion2ComboBox.SelectedValue);
-            if (EnemyChampion3ComboBox.SelectedValue != null)
-                selectedEnemyHeroes.Add((int)EnemyChampion3ComboBox.SelectedValue);
-            if (EnemyChampion4ComboBox.SelectedValue != null)
-                selectedEnemyHeroes.Add((int)EnemyChampion4ComboBox.SelectedValue);
-            if (EnemyChampion5ComboBox.SelectedValue != null)
-                selectedEnemyHeroes.Add((int)EnemyChampion5ComboBox.SelectedValue);
-
-            GetLaneCounterRecommendations(selectedEnemyHeroes);
-
-        }
         private void BrowseImageButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -250,252 +209,6 @@ namespace HeroCounterApp
                 MessageBox.Show($"Error adding hero: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private void GetLaneCounterRecommendations(List<int> enemyHeroIds)
-        {
-            var championCounts = new Dictionary<int, int>();
-            var allCountersID = new HashSet<int>();
-
-            try
-            {
-                using (var connection = DatabaseHelper.GetConnection())
-                {
-                    connection.Open();
-
-                    var enemyChampionData = FetchChampionData(enemyHeroIds, connection);
-                    foreach (var (championId, counters, lane) in enemyChampionData)
-                    {
-                        if (!string.IsNullOrEmpty(counters))
-                        {
-                            var counterIds = counters.Split(',').Select(int.Parse).ToHashSet();
-                            allCountersID.UnionWith(counterIds);
-
-                            foreach (var counterId in counterIds)
-                            {
-                                if (!championCounts.ContainsKey(counterId))
-                                {
-                                    championCounts[counterId] = 0;
-                                }
-                                championCounts[counterId]++;
-                            }
-
-                            // Add champions to specific lane lists
-                            AddToLaneLists(enemyHeroIds,counterIds, lane, championCounts, connection, isSpecific: true);
-                        }
-                    }
-
-                    // Step 2: Add all counters to lane lists
-                    if (allCountersID.Count > 0)
-                    {
-                        AddToLaneLists(enemyHeroIds,allCountersID, null, championCounts, connection, isSpecific: false);
-                    }
-
-                    // Step 3: Sort lists by occurrences
-                    SortChampionListsByOccurrences();
-
-                    // Step 4: Bind sorted lists to UI
-                    BindChampionListsToUI();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading counters: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private List<(int ChampionID, string Counters, string Lanes)> FetchChampionData(IEnumerable<int> championIds, SQLiteConnection connection)
-        {
-            var inClause = string.Join(",", championIds.Select((_, index) => $"@EnemyId{index}"));
-            var command = new SQLiteCommand($"SELECT ChampionID, Counters, Lanes FROM Champion WHERE ChampionID IN ({inClause})", connection);
-
-            for (int i = 0; i < championIds.Count(); i++)
-            {
-                command.Parameters.AddWithValue($"@EnemyId{i}", championIds.ElementAt(i));
-            }
-
-            var results = new List<(int, string, string)>();
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    results.Add((
-                        reader.GetInt32(reader.GetOrdinal("ChampionID")),
-                        reader.GetString(reader.GetOrdinal("Counters")),
-                        reader.GetString(reader.GetOrdinal("Lanes"))
-                    ));
-                }
-            }
-            return results;
-        }
-
-        private void AddToLaneLists(List<int> enemyHeroIds, IEnumerable<int> championIds, string lane, Dictionary<int, int> championCounts, SQLiteConnection connection, bool isSpecific)
-        {
-            var inClause = string.Join(",", championIds.Select((_, index) => $"@CounterId{index}"));
-            var command = new SQLiteCommand($"SELECT * FROM Champion WHERE ChampionID IN ({inClause})", connection);
-
-            for (int i = 0; i < championIds.Count(); i++)
-            {
-                command.Parameters.AddWithValue($"@CounterId{i}", championIds.ElementAt(i));
-            }
-
-            var addedChampions = new HashSet<int>(); // Set pentru a urmări campionii adăugați
-
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var champion = new Champion
-                    {
-                        ChampionID = reader.GetInt32(reader.GetOrdinal("ChampionID")),
-                        Name = reader.GetString(reader.GetOrdinal("Name")),
-                        Lanes = reader.GetString(reader.GetOrdinal("Lanes")),
-                        Counters = reader.GetString(reader.GetOrdinal("Counters")),
-                        ImagePath = reader.IsDBNull(reader.GetOrdinal("ImagePath")) ? "" : reader.GetString(reader.GetOrdinal("ImagePath"))
-                    };
-                    if (enemyHeroIds.Contains(champion.ChampionID)) continue;
-
-                    if (!string.IsNullOrEmpty(champion.Counters))
-                    {
-                        var countChampionCounters = champion.Counters.Split(',').Select(int.Parse);
-                        if (countChampionCounters.Any(counterId => enemyHeroIds.Contains(counterId)))
-                        {
-                            continue;
-                        }
-                    }
-                    if (!championCounts.TryGetValue(champion.ChampionID, out var occurrences)) continue;
-
-                    if (isSpecific && lane != null)
-                    {
-                        var specificLanes = lane.Split(',').Select(l => l.Trim()).ToList();
-
-                        foreach (var specificLane in specificLanes)
-                        {
-                            if (Regex.IsMatch(champion.Lanes, $@"\b{Regex.Escape(specificLane)}\b"))
-                            {
-                                if (!addedChampions.Contains(champion.ChampionID))
-                                {
-                                    SPEAddChampionToLaneList(champion, specificLane, occurrences);
-                                    addedChampions.Add(champion.ChampionID); 
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Dacă nu este specificat un lane, folosește expresia regulată pentru lane-urile standard
-                        var lanesToMatch = Regex.Matches(champion.Lanes, @"\b(EXP|Gold|Mid|Roam|Jungle)\b");
-                        foreach (Match match in lanesToMatch)
-                        {
-                            if (!addedChampions.Contains(champion.ChampionID)) // Verifică dacă a fost adăugat deja
-                            {
-                                AddChampionToLaneList(champion, match.Value, occurrences);
-                                addedChampions.Add(champion.ChampionID); // Adaugă campionul în set
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        private void SortChampionListsByOccurrences()
-        {
-            UpdateObservableCollection(EXPCounters, EXPCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(GoldCounters, GoldCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(MidCounters, MidCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(RoamCounters, RoamCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(JungleCounters, JungleCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-
-            UpdateObservableCollection(SPEEXPCounters, SPEEXPCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(SPEGoldCounters, SPEGoldCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(SPEMidCounters, SPEMidCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(SPERoamCounters, SPERoamCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-            UpdateObservableCollection(SPEJungleCounters, SPEJungleCounters.OrderByDescending(c => ExtractDiscoveryCount(c.Name)).ToList());
-        }
-        private void UpdateObservableCollection(ObservableCollection<Champion> collection, List<Champion> sortedList)
-        {
-            collection.Clear();
-            foreach (var item in sortedList)
-            {
-                collection.Add(item);
-            }
-        }
-
-        private int ExtractDiscoveryCount(string name)
-        {
-            var match = Regex.Match(name, @"\d+");
-            return match.Success ? int.Parse(match.Value) : 0;
-        }
-        private void SPEAddChampionToLaneList(Champion champion, string lane, int occurrences)
-        {
-            champion.Name += $" (Discovered {occurrences} times)";
-            AddChampionToObservableCollection(SPEGetLaneCollection(lane), champion);
-        }
-
-        private void AddChampionToLaneList(Champion champion, string lane, int occurrences)
-        {
-            champion.Name += $" (Discovered {occurrences} times)";
-            AddChampionToObservableCollection(GetLaneCollection(lane), champion);
-        }
-
-        private void AddChampionToObservableCollection(ObservableCollection<Champion> collection, Champion champion)
-        {
-            if (!collection.Any(c => c.ChampionID == champion.ChampionID))
-            {
-                collection.Add(champion);
-            }
-        }
-        private ObservableCollection<Champion> SPEGetLaneCollection(string lane)
-        {
-            switch (lane)
-            {
-                case "EXP":
-                    return SPEEXPCounters;
-                case "Gold":
-                    return SPEGoldCounters;
-                case "Mid":
-                    return SPEMidCounters;
-                case "Roam":
-                    return SPERoamCounters;
-                case "Jungle":
-                    return SPEJungleCounters;
-                default:
-                    throw new InvalidOperationException($"Unexpected lane: {lane}");
-            }
-        }
-
-        private ObservableCollection<Champion> GetLaneCollection(string lane)
-        {
-            switch (lane)
-            {
-                case "EXP":
-                    return EXPCounters;
-                case "Gold":
-                    return GoldCounters;
-                case "Mid":
-                    return MidCounters;
-                case "Roam":
-                    return RoamCounters;
-                case "Jungle":
-                    return JungleCounters;
-                default:
-                    throw new InvalidOperationException($"Unexpected lane: {lane}");
-            }
-        }
-
-
-        private void BindChampionListsToUI()
-        {
-            ExpCounterslistbox.ItemsSource = EXPCounters;
-            GoldCounterslistbox.ItemsSource = GoldCounters;
-            JungleCounterslistbox.ItemsSource = JungleCounters;
-            MidCounterslistbox.ItemsSource = MidCounters;
-            RoamCounterslistbox.ItemsSource = RoamCounters;
-
-            SPEExpCounterslistbox.ItemsSource = SPEEXPCounters;
-            SPEGoldCounterslistbox.ItemsSource = SPEGoldCounters;
-            SPEJungleCounterslistbox.ItemsSource = SPEJungleCounters;
-            SPEMidCounterslistbox.ItemsSource = SPEMidCounters;
-            SPERoamCounterslistbox.ItemsSource = SPERoamCounters;
-        }
-
 
 
         private void EditBrowseImageButton_Click(object sender, RoutedEventArgs e)

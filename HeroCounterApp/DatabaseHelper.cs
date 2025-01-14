@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 
@@ -13,7 +9,7 @@ namespace HeroCounterApp
     {
         static string dbFileName = "heroes.db";
         static string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", dbFileName);
-        static string ConnectionString = $"Data Source={dbPath};Version=3;";
+        static string ConnectionString = $"Data Source={dbPath};Version=3;ReadWrite=True;";
 
         public static SQLiteConnection GetConnection()
         {
