@@ -15,6 +15,7 @@ namespace HeroCounterApp
     public partial class MainWindow : Window
     {
         private List<Champion> champions = new List<Champion>();
+        private Dictionary<int, List<string>> counterImagePaths = new Dictionary<int, List<string>>();
         public CounterRecommendationsTab counterRecommendationsTab;
         public ObservableCollection<Champion> SelectedCounters { get; set; } = new ObservableCollection<Champion>();
 

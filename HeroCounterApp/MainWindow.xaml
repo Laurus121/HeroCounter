@@ -19,11 +19,37 @@
 
         <!-- Reusable DataTemplate for DataGrid Columns -->
         <DataTemplate x:Key="GridTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Image Source="{Binding ImagePath}" Width="50" Height="50" />
-                <TextBlock Text="{Binding Name}" Margin="10,0" VerticalAlignment="Center" />
-            </StackPanel>
-        </DataTemplate>
+            <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Imaginea din stânga -->
+                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,5,0" ToolTip="{Binding Name}" />
+
+                    <!-- StackPanel pentru TextBlock și imagini asociate -->
+                    <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Top" />
+
+                        <!-- ItemsControl pentru a afișa imaginile asociate -->
+                        <ItemsControl ItemsSource="{Binding AssociatedImages}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="25" Height="25" CornerRadius="12.5" Margin="0,5,5,0" ClipToBounds="True">
+                                        <Image Source="{Binding}" Stretch="UniformToFill" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </DataTemplate>
     </Window.Resources>
 
     <TabControl>
@@ -127,140 +153,50 @@
                 <!-- Additional Panels: EXP, Gold, Mid, etc. -->
                 <StackPanel Grid.Row="1" Grid.Column="0">
                     <Label Content="EXP" HorizontalAlignment="Center" />
-                    <ListBox x:Name="EXPCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </StackPanel>
+                        <ListBox x:Name="EXPCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
+                    </StackPanel>
                 
                 <StackPanel Grid.Row="1" Grid.Column="1">
                     <Label Content="Gold" HorizontalAlignment="Center" />
-                        <ListBox x:Name="GoldCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="GoldCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 <StackPanel Grid.Row="1" Grid.Column="2">
                     <Label Content="Jungle" HorizontalAlignment="Center" />
-                        <ListBox x:Name="JungleCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="JungleCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 <StackPanel Grid.Row="1" Grid.Column="3">
                     <Label Content="Mid" HorizontalAlignment="Center" />
-                        <ListBox x:Name="MidCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="MidCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 <StackPanel Grid.Row="1" Grid.Column="4">
                     <Label Content="Roam" HorizontalAlignment="Center" />
-                        <ListBox x:Name="RoamCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="RoamCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 <StackPanel Grid.Row="2" Grid.Column="0">
                     <Label Content="EXP Counters" HorizontalAlignment="Center" />
-                        <ListBox x:Name="SPEEXPCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="SPEEXPCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="1">
                     <Label Content="Gold Counters" HorizontalAlignment="Center" />
-                        <ListBox x:Name="SPEGoldCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="SPEGoldCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 <StackPanel Grid.Row="2" Grid.Column="2">
                     <Label Content="Jungle Counters" HorizontalAlignment="Center" />
-                        <ListBox x:Name="SPEJungleCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="SPEJungleCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 <StackPanel Grid.Row="2" Grid.Column="3">
                     <Label Content="Mid Counters" HorizontalAlignment="Center" />
-                        <ListBox x:Name="SPEMidCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="SPEMidCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 <StackPanel Grid.Row="2" Grid.Column="4">
                     <Label Content="Roam Counters" HorizontalAlignment="Center" />
-                        <ListBox x:Name="SPERoamCounterslistbox" Width="Auto" Height="170">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding ImagePath}" Width="50" Height="50" Margin="0,0,10,0" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        <ListBox x:Name="SPERoamCounterslistbox" Width="Auto" Height="170" ItemTemplate="{StaticResource GridTemplate}" />
                 </StackPanel>
                 
                 <StackPanel Grid.Row="5" Grid.Column="0">
                     <Label Content="EXP - Not Recommended" HorizontalAlignment="Center" />
-                    <ListBox x:Name="NOREXPlistbox" Width="Auto" Height="Auto">
+                    <ListBox x:Name="NOREXPlistbox" Width="Auto" Height="300">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -274,7 +210,7 @@
 
                 <StackPanel Grid.Row="5" Grid.Column="1">
                     <Label Content="Gold - Not Recommended" HorizontalAlignment="Center" />
-                    <ListBox x:Name="NORGoldlistbox" Width="Auto" Height="Auto">
+                        <ListBox x:Name="NORGoldlistbox" Width="Auto" Height="300">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -287,7 +223,7 @@
                 </StackPanel>
                 <StackPanel Grid.Row="5" Grid.Column="2">
                     <Label Content="Jungle - Not Recommended" HorizontalAlignment="Center" />
-                    <ListBox x:Name="NORJunglelistbox" Width="Auto" Height="Auto">
+                        <ListBox x:Name="NORJunglelistbox" Width="Auto" Height="300">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -300,7 +236,7 @@
                 </StackPanel>
                 <StackPanel Grid.Row="5" Grid.Column="3">
                     <Label Content="Mid - Not Recommended" HorizontalAlignment="Center" />
-                    <ListBox x:Name="NORMidlistbox" Width="Auto" Height="Auto">
+                        <ListBox x:Name="NORMidlistbox" Width="Auto" Height="300">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -313,7 +249,7 @@
                 </StackPanel>
                 <StackPanel Grid.Row="5" Grid.Column="4">
                     <Label Content="Roam - Not Recommended" HorizontalAlignment="Center" />
-                    <ListBox x:Name="NORRoamlistbox" Width="Auto" Height="Auto">
+                        <ListBox x:Name="NORRoamlistbox" Width="Auto" Height="300">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">

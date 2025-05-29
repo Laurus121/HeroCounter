@@ -11,6 +11,7 @@ namespace HeroCounterApp
 {
     public class CounterRecommendationsTab
     {
+        private readonly Dictionary<int, List<string>> counterImagePaths = new Dictionary<int, List<string>>();
         private readonly ComboBox[] enemyComboBoxes;
         private readonly ListBox[] counterListBoxes;
 
@@ -95,6 +96,10 @@ namespace HeroCounterApp
             {
                 Counters[key].Clear();
             }
+            foreach (var key in counterImagePaths.Keys.ToList())
+            {
+                counterImagePaths[key].Clear();
+            }
         }
 
         private void UpdateCounterRecommendations()
@@ -119,7 +124,7 @@ namespace HeroCounterApp
                     connection.Open();
                     var enemyChampionData = FetchChampionData(enemyHeroIds, connection);
 
-                    foreach (var (championId, counters, lane) in enemyChampionData)
+                    foreach (var (championId, counters, lane, imagepath) in enemyChampionData)
                     {
                         if (!string.IsNullOrEmpty(counters))
                         {
@@ -128,7 +133,14 @@ namespace HeroCounterApp
 
                             foreach (var counterId in counterIds)
                             {
-                                // Verificăm dacă cheia există și obținem valoarea, altfel returnăm 0
+                                if (!counterImagePaths.ContainsKey(counterId))
+                                {
+                                    counterImagePaths[counterId] = new List<string>();
+                                }
+                                if (!counterImagePaths[counterId].Contains(imagepath))
+                                {
+                                    counterImagePaths[counterId].Add(imagepath);
+                                }
                                 championCounts[counterId] = championCounts.ContainsKey(counterId) ? championCounts[counterId] + 1 : 1;
                             }
 
@@ -152,13 +164,13 @@ namespace HeroCounterApp
             }
         }
 
-        private IEnumerable<(int ChampionId, string Counters, string Lane)> FetchChampionData(List<int> enemyHeroIds, SQLiteConnection connection)
+        private IEnumerable<(int ChampionId, string Counters, string Lane, string ImagePath)> FetchChampionData(List<int> enemyHeroIds, SQLiteConnection connection)
         {
-            var data = new List<(int, string, string)>();
+            var data = new List<(int, string, string, string)>();
 
             foreach (var enemyId in enemyHeroIds)
             {
-                string query = "SELECT ChampionID, Counters, Lanes FROM Champion WHERE ChampionID = @ChampionID";
+                string query = "SELECT ChampionID, Counters, Lanes, ImagePath FROM Champion WHERE ChampionID = @ChampionID";
                 using (var command = new SQLiteCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@ChampionID", enemyId);
@@ -169,7 +181,8 @@ namespace HeroCounterApp
                             int championId = reader.GetInt32(reader.GetOrdinal("ChampionID"));
                             string counters = reader.IsDBNull(reader.GetOrdinal("Counters")) ? "" : reader.GetString(reader.GetOrdinal("Counters"));
                             string lane = reader.IsDBNull(reader.GetOrdinal("Lanes")) ? "" : reader.GetString(reader.GetOrdinal("Lanes"));
-                            data.Add((championId, counters, lane));
+                            string imagePath = reader.IsDBNull(reader.GetOrdinal("ImagePath")) ? "" : reader.GetString(reader.GetOrdinal("ImagePath"));
+                            data.Add((championId, counters, lane, imagePath));
                         }
                     }
                 }
@@ -326,14 +339,26 @@ namespace HeroCounterApp
         {
             foreach (var listBox in counterListBoxes)
             {
-                string key = listBox.Name.Replace("listbox", "");
+                string key = listBox.Name.Replace("listbox", ""); // Extrage cheia pentru lista corespunzătoare
 
-                if (Counters.TryGetValue(key, out var itemsSource))
+                if (Counters.TryGetValue(key, out var championList))
                 {
+                    // Transformă lista pentru a include imaginile asociate
+                    var itemsSource = championList.Select(champion => new
+                    {
+                        ImagePath = champion.ImagePath,
+                        Name = champion.Name,
+                        AssociatedImages = counterImagePaths.ContainsKey(champion.ChampionID)
+                            ? counterImagePaths[champion.ChampionID]
+                            : new List<string>() // Fără imagini asociate
+                    }).ToList();
+
+                    // Asociază direct noua listă la ListBox
                     listBox.ItemsSource = itemsSource;
                 }
             }
         }
+
 
         private void UpdateObservableCollection(ObservableCollection<Champion> collection, List<Champion> sortedList)
         {
